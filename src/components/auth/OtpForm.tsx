@@ -1,9 +1,13 @@
 "use client";
 import { logo } from "@/image";
+import { verifyOTP } from "@/network/auth";
 import Button from "@/shared/Button";
+import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import OTPInput from "react-otp-input";
 
 export default function Otp() {
@@ -21,6 +25,23 @@ export default function Otp() {
       }
     }
   }, []);
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: verifyOTP,
+  });
+
+  const handleOtpVerification = async () => {
+    const res = await mutateAsync({
+      otp: otp,
+      email: email,
+    });
+    if ((res && "error" in res) || (res && res.status === false)) {
+      toast.error(res.message ?? "");
+    } else {
+      toast.success(res.message);
+      route.push("/escrow");
+    }
+  };
 
   return (
     <div className="w-[48rem]">
@@ -41,9 +62,12 @@ export default function Otp() {
         <br />
         <span className="text-black text-[1.8rem] font-[500]">
           {email}.{" "}
-          <span className="text-black text-[1.8rem] underline">
+          <Link
+            href="/resend-email"
+            className="text-black text-[1.8rem] underline"
+          >
             Wrong Email?
-          </span>
+          </Link>
         </span>{" "}
       </p>
       <OTPInput
@@ -77,11 +101,10 @@ export default function Otp() {
       <Button
         action="Submit"
         width="w-[100%] mt-[3rem] mb-[2rem]"
-        handleClick={() => {
-          route.push("/escrow");
-        }}
+        handleClick={handleOtpVerification}
         fontSize="text-[1.6rem]"
-        isDisabled={otp?.length < 4}
+        isDisabled={otp?.length < 4 || isPending}
+        animate={isPending}
       />
     </div>
   );

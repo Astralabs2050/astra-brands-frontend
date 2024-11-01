@@ -1,4 +1,4 @@
-import Register from "@/components/auth/Regitster";
+import Register from "@/components/auth/Register";
 import AuthRight from "@/shared/AuthRight";
 
 export default function Home() {

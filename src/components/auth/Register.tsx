@@ -1,10 +1,13 @@
 "use client";
 import { googleLogo } from "@/image";
+import { signup } from "@/network/auth";
 import Button from "@/shared/Button";
 import InputField from "@/shared/InputField";
+import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import * as Yup from "yup";
 
 interface RegisterProps {
@@ -15,6 +18,9 @@ interface RegisterProps {
 
 export default function Register() {
   const route = useRouter();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: signup,
+  });
 
   const register = useFormik<RegisterProps>({
     initialValues: {
@@ -43,8 +49,6 @@ export default function Register() {
     onSubmit: async (values) => {
       const onboardingData = {
         email: values.email,
-        userName: values.userName,
-        password: values.password,
       };
       if (typeof window !== "undefined") {
         localStorage.setItem(
@@ -52,7 +56,16 @@ export default function Register() {
           JSON.stringify(onboardingData)
         );
       }
-      route.push("/otp-verification");
+      const res = await mutateAsync({
+        email: values.email,
+        password: values.password,
+        username: values.userName,
+      });
+      if (res && "error" in res) {
+        toast.error(res.error);
+      } else {
+        route.push("/otp-verification");
+      }
     },
   });
 
@@ -124,7 +137,8 @@ export default function Register() {
         width="w-[100%] mt-[3rem] mb-[2rem]"
         handleClick={register.handleSubmit}
         fontSize="text-[1.6rem]"
-        isDisabled={!register.isValid}
+        isDisabled={!register.isValid || isPending}
+        animate={isPending}
         rounded
       />
       <p className="text-[1.5rem] text-astraLightBlack text-center">
