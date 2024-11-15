@@ -16,9 +16,44 @@ export interface SignInRequest {
   email: string;
   password: string;
 }
+export interface SignInResponse {
+  id: string;
+  email: string;
+  verified: boolean;
+  active: boolean;
+  lastseen: string | null;
+  isAdmin: boolean;
+  userType: string | null;
+  createdAt: string;
+  updatedAt: string;
+  token: string;
+}
 export interface ResendOtpRequest {
   email: string;
 }
+
+interface BrandDetails {
+  id: string;
+  email: string;
+  verified: boolean;
+  active: boolean;
+  lastseen: string | null;
+  otp: string;
+  isAdmin: boolean;
+  userType: string | null;
+  createdAt: string;
+  updatedAt: string;
+  creator: string | null;
+  brand: {
+    id: string;
+    username: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  media: string[]; // Adjust type if you have more details about media structure
+}
+
 export const signup = async (
   payload: SignUpRequest
 ): Promise<BaseResponse<unknown>> => {
@@ -33,12 +68,16 @@ export const verifyOTP = async (
 
 export const login = async (
   payload: SignInRequest
-): Promise<BaseResponse<unknown>> => {
-  return API.post<SignInRequest, unknown>(Endpoints.LOGIN, payload);
+): Promise<BaseResponse<SignInResponse>> => {
+  return API.post<SignInRequest, SignInResponse>(Endpoints.LOGIN, payload);
 };
 
 export const resendOtp = async (
   payload: ResendOtpRequest
 ): Promise<BaseResponse<unknown>> => {
   return API.post<ResendOtpRequest, unknown>(Endpoints.RESEND_OTP, payload);
+};
+
+export const getUserDetails = async (): Promise<BaseResponse<BrandDetails>> => {
+  return API.get<BrandDetails>(Endpoints.GET_USER_INFO);
 };

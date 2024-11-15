@@ -22,6 +22,17 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/helpers/WalletConnectionProvider.js",
+    "src/helpers/ClientOnlyWalletConnection",
+    "../fonts/solanaUtils.js",
+    "../fonts/WalletConnectionWrapper.tsx",
+    "../fonts/WalletConnectionProvider.tsx",
+    "../fonts/global.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

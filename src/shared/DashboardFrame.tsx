@@ -66,6 +66,7 @@ export default function DashboardFrame({
             handleClick={() => route.push("/my-creative-space")}
             fontSize="text-[1.5rem]"
             rounded
+            backgroundColor="bg-astraBlue"
           />
         </div>
       </div>

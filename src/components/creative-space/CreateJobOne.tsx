@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import Button from "@/shared/Button";
 import InputField from "@/shared/InputField";
 import JobFrame from "@/shared/JobFrame";
 import OptionBox from "@/shared/OptionBox";
-import { sample1, sample2, sample3, sample4 } from "@/image";
+import CustomSelect from "@/shared/CustomSelectOptions";
 
 const pieceType = ["1 Piece Look", "2 Piece Look", "3 Piece Look"] as const;
 type PieceType = (typeof pieceType)[number];
@@ -15,18 +15,22 @@ type PieceType = (typeof pieceType)[number];
 type FormValues = {
   outfitName: string;
   pieceType1?: string;
-  pieceCount1?: string;
-  pricePerPiece1?: string;
+  pieceCount1?: number;
+  pricePerPiece1?: number;
   pieceType2?: string;
-  pieceCount2?: string;
-  pricePerPiece2?: string;
+  pieceCount2?: number;
+  pricePerPiece2?: number;
   pieceType3?: string;
-  pieceCount3?: string;
-  pricePerPiece3?: string;
+  pieceCount3?: number;
+  pricePerPiece3?: number;
+};
+type PieceAccumulator = {
+  [key: string]: string | number;
 };
 
 export default function CreateJobOne() {
   const route = useRouter();
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedPieceType, setSelectedPieceType] = useState<PieceType | null>(
     null
   );
@@ -37,38 +41,98 @@ export default function CreateJobOne() {
 
   const selectedCount = parseInt(selectedPieceType?.[0] ?? "0", 10);
 
-  const initialValues: FormValues = {
+  const initialFormValues: FormValues = {
     outfitName: "",
     pieceType1: "",
-    pieceCount1: "",
-    pricePerPiece1: "",
+    pieceCount1: 0,
+    pricePerPiece1: 0,
     pieceType2: "",
-    pieceCount2: "",
-    pricePerPiece2: "",
+    pieceCount2: 0,
+    pricePerPiece2: 0,
     pieceType3: "",
-    pieceCount3: "",
-    pricePerPiece3: "",
+    pieceCount3: 0,
+    pricePerPiece3: 0,
   };
+  const [initialValues, setInitialValues] =
+    useState<FormValues>(initialFormValues);
 
   const register = useFormik<FormValues>({
     initialValues,
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: () => {},
+    onSubmit: (values) => {
+      const pieces = Array.from({ length: selectedCount }, (_, i) => ({
+        type: values[`pieceType${i + 1}` as keyof FormValues] as string,
+        designNumber: i + 1,
+        piecePrice: values[
+          `pricePerPiece${i + 1}` as keyof FormValues
+        ] as number,
+        pieceCount: values[`pieceCount${i + 1}` as keyof FormValues] as number,
+      }));
+      const jobData = {
+        designId: "",
+        data: {
+          outfitName: values.outfitName,
+          pieceNumber: selectedCount,
+          pieces: pieces,
+          imageData: [],
+          prints: [],
+        },
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("storedJob", JSON.stringify(jobData));
+      }
+      route.push("/additional-information-2");
+    },
   });
+
+  //Restore values when reloaded
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedJobData = localStorage.getItem("storedJob");
+      const generatedDesigns = localStorage.getItem("generatedImages");
+      if (generatedDesigns) {
+        const designData = JSON.parse(generatedDesigns);
+        setGeneratedImages(designData);
+      }
+      console.log("Generated Images (before update):", generatedImages);
+      if (storedJobData) {
+        const jobData = JSON.parse(storedJobData);
+        const restoredValues: FormValues = {
+          outfitName: jobData.data.outfitName || "",
+          ...jobData.data.pieces.reduce(
+            (
+              acc: PieceAccumulator,
+              piece: { type: string; pieceCount: number; piecePrice: number },
+              index: number
+            ) => {
+              acc[`pieceType${index + 1}`] = piece.type || "";
+              acc[`pieceCount${index + 1}`] = piece.pieceCount || 0;
+              acc[`pricePerPiece${index + 1}`] = piece.piecePrice || 0;
+              return acc;
+            },
+            {}
+          ),
+        };
+        setInitialValues(restoredValues);
+        setSelectedPieceType(jobData.data.pieceNumber.toString());
+      }
+    }
+  }, []);
 
   return (
     <JobFrame
       title="Additional information"
-      description="Enter more information for your Digital Artist to Turn this into 3D"
+      description="Enter more information for a maker to turn your AI design into a real outfit"
       pageNumber="1/3"
       link="/generate-designs"
     >
       <div>
         <div className="flex gap-x-[2rem] w-[max-content] mx-auto mt-[7rem]">
-          {[sample1, sample2, sample3, sample4].map((item, index) => (
-            <Image key={index} src={item} alt="" width={220} height={260} />
-          ))}
+          {generatedImages &&
+            generatedImages.map((item, index) => (
+              <Image key={index} src={item} alt="" width={220} height={260} />
+            ))}
         </div>
         <div className="mt-[5rem] w-[50%] mx-auto">
           <p className="text-[1.4rem] pb-[.5rem]">Name of Outfit</p>
@@ -99,17 +163,50 @@ export default function CreateJobOne() {
           {Array.from({ length: selectedCount }, (_, i) => (
             <div key={i}>
               <p className="text-[2rem] font-bold mb-[1.5rem]">Piece {i + 1}</p>
-              <p className="text-[1.4rem]">Select Piece Type</p>
-              <InputField
-                type="text"
-                error={null}
-                placeholder="Select Piece Type"
-                {...register.getFieldProps(`pieceType${i + 1}`)}
-                borderRadius="rounded-full"
-                fontSize="text-[1.5rem]"
-                marginBottom="mb-[1rem]"
+              <CustomSelect
+                options={[
+                  {
+                    value: "shirt",
+                    label: "Shirts",
+                    description: "All type of Shirts",
+                  },
+                  {
+                    value: "Denim",
+                    label: "Denim",
+                    description: "Denim materials ",
+                  },
+                  {
+                    value: "Cargos",
+                    label: "Cargos",
+                    description: "Cargo pants",
+                  },
+                  {
+                    value: "Head Wears",
+                    label: "Head Wears",
+                    description:
+                      "All type of facecaps; Baseball caps, bucket hats",
+                  },
+                  {
+                    value: "Shoes",
+                    label: "Shoes",
+                    description: "All type of footwears",
+                  },
+                  {
+                    value: "Jackets",
+                    label: "Jackets",
+                    description: "Puff Jacket, Leather Jacket, Fleece Jacket",
+                  },
+                ]}
+                placeholder="Select Piece type"
+                label="Select Piece Type"
+                disabled={false}
+                value={register.values[`pieceType${i + 1}` as keyof FormValues]}
+                onChange={(value) =>
+                  register.setFieldValue(`pieceType${i + 1}`, value)
+                }
+                name={`pieceType${i + 1}`}
               />
-              <div className="flex justify-between w-[100%]">
+              <div className="flex justify-between mt-[1rem] w-[100%]">
                 <div className="w-[48%]">
                   <p className="text-[1.3rem] pb-[.5rem]">
                     How many pieces of this design will you make?
@@ -125,7 +222,7 @@ export default function CreateJobOne() {
                 </div>
                 <div className="w-[48%]">
                   <p className="text-[1.3rem] pb-[.5rem]">
-                    Enter Price per Piece
+                    Enter Budget per Piece
                   </p>
                   <InputField
                     type="text"
@@ -143,7 +240,7 @@ export default function CreateJobOne() {
             width="w-[80%] mx-auto"
             action="Next"
             fontSize="text-[1.5rem]"
-            handleClick={() => route.push("/additional-information-2")}
+            handleClick={register.handleSubmit}
             rounded
           />
         </div>

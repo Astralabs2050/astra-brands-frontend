@@ -1,11 +1,14 @@
 "use client";
 
 import { clotheTemplate, cloudIcon } from "@/image";
+import { additionalInformation } from "@/network/creativeSpace";
 import Button from "@/shared/Button";
 import JobFrame from "@/shared/JobFrame";
+import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function CreateJobTwo() {
   const route = useRouter();
@@ -49,6 +52,53 @@ export default function CreateJobTwo() {
         reader.readAsDataURL(file);
       }
     };
+
+  console.log(previews[0], uploadedImages[0]);
+  console.log(uploadedImages[0]?.length);
+
+  const {
+    mutateAsync: mutateAsync,
+    isPending: isPendingAdditionalInformation,
+  } = useMutation({
+    mutationFn: additionalInformation,
+  });
+  const handleNext = async () => {
+    if (typeof window !== "undefined") {
+      const jobData = JSON.parse(localStorage.getItem("storedJob") || "{}");
+      const designId = localStorage.getItem("designId");
+      const imageData = uploadedImages.map((image, index) => ({
+        image,
+        view: labels[index].toLowerCase().replace(" ", ""),
+      }));
+      const prints = previews
+        .filter((preview) => preview !== "")
+        .map((preview) => ({
+          image: preview,
+        }));
+
+      const updatedJobData = {
+        ...jobData,
+        designId,
+        data: {
+          ...jobData.data,
+          outfitName: jobData.data?.outfitName,
+          pieceNumber: jobData.data?.pieceNumber,
+          pieces: jobData.data?.pieces || [],
+          imageData,
+          prints,
+        },
+      };
+      const res = await mutateAsync(updatedJobData);
+      if ((res && "error" in res) || (res && res.status === false)) {
+        toast.error(res.message ?? "");
+      } else if ((res && res.data) || res.status === true) {
+        route.push("/additional-information-3");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("storedJob");
+        }
+      }
+    }
+  };
 
   return (
     <JobFrame
@@ -150,7 +200,9 @@ export default function CreateJobTwo() {
           width="w-[50%] mx-auto"
           action="Create a Physical Version"
           fontSize="text-[1.5rem]"
-          handleClick={() => route.push("/additional-information-3")}
+          handleClick={handleNext}
+          animate={isPendingAdditionalInformation}
+          isDisabled={isPendingAdditionalInformation}
           rounded
         />
       </div>

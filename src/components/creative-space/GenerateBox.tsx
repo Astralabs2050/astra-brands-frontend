@@ -1,34 +1,30 @@
 "use client";
 
-import {
-  dwIcon,
-  featuredIcon,
-  generateIcon,
-  sample1,
-  sample2,
-  sample3,
-  sample4,
-  tickedIcon,
-  uploadIcon,
-} from "@/image";
+import { dwIcon, generateIcon, uploadIcon } from "@/image";
 import ButtonWithIcon from "@/shared/ButtonWithIcon";
 import Image from "next/image";
 import { useRef, useState } from "react";
-import SkillNeededModal from "./SkillNeededModal";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { addCreator, generateDesign } from "@/network/creativeSpace";
+import toast from "react-hot-toast";
+import LoaderSvg from "@/shared/LoaderSvg";
 
 export default function GenerateBox() {
   const route = useRouter();
-  const [generated, setGenerated] = useState<string>("");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [skillNeededModal, setSkillNeededModal] = useState<boolean>(false);
+  const [generated, setGenerated] = useState<boolean>(false);
+  // const [selectedId, setSelectedId] = useState<string | null>(null);
+  // const [skillNeededModal, setSkillNeededModal] = useState<boolean>(false);
+  const [designId, setDesignId] = useState<string>("");
   const [prompt, setPrompt] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  console.log(generatedImages);
 
   const handleAttach = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Open file dialog
+      fileInputRef.current.click();
     }
   };
 
@@ -48,7 +44,54 @@ export default function GenerateBox() {
     });
   };
 
-  if (generated === "") {
+  //Handle generate
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: generateDesign,
+  });
+  const handleGenerate = async () => {
+    if (prompt === "") {
+      toast.error("please enter prompt");
+    } else {
+      setGenerated(true);
+      const res = await mutateAsync({
+        prompt: prompt,
+      });
+
+      if ((res && "error" in res) || (res && res.status === false)) {
+        toast.error(res.message ?? "");
+      } else if (res && res.data) {
+        setGeneratedImages(res?.data?.images);
+        setDesignId(res.data?.designId);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("designId", res?.data?.designId);
+          localStorage.setItem(
+            "generatedImages",
+            JSON.stringify(res?.data?.images)
+          );
+        }
+      }
+    }
+  };
+
+  //Handle add maker
+  const { mutateAsync: mutateAsyncAddCreator, isPending: isPendingAddCreator } =
+    useMutation({
+      mutationFn: addCreator,
+    });
+  const handleAddCreator = async () => {
+    const res = await mutateAsyncAddCreator({
+      designId: designId,
+      creator: "manufacturer",
+    });
+
+    if ((res && "error" in res) || (res && res.status === false)) {
+      toast.error(res.message ?? "");
+    } else if (res && res.data) {
+      route.push("/additional-information-1");
+    }
+  };
+
+  if (!generated) {
     return (
       <div className="w-[100%] px-[17rem] flex justify-center items-center">
         <div className="flex flex-col justify-center items-center w-[100%]">
@@ -61,10 +104,10 @@ export default function GenerateBox() {
               Design a collection using AI and bring your ideas to life
             </p>
           </div>
-          <div className="flex justify-between items-center w-[100%] border-astraSilver bg-astraGreyBg px-[3rem] py-[2rem] rounded-[1rem] mt-[5rem]">
+          <div className="flex justify-between items-center w-[100%] border border-astraSilver bg-astraGreyBg px-[3rem] py-[2rem] rounded-[1rem] mt-[5rem]">
             <div className="w-[100%]">
               <textarea
-                placeholder="Enter prompt e.g., 'female model wearing multi-coloured jumpsuit'"
+                placeholder='Enter prompt e.g. "female model wearing multi-coloured jumpsuit"'
                 className="text-[1.5rem] w-[90%] bg-transparent outline-none resize-none overflow-hidden"
                 rows={1}
                 value={prompt}
@@ -80,7 +123,7 @@ export default function GenerateBox() {
                 onClick={handleAttach}
               >
                 <Image src={uploadIcon} alt="" width={15} height={15} />
-                <p className="text-[1.5rem]">Attach</p>
+                <p className="text-[1.5rem] text-astraActionGrey">Attach</p>
               </div>
               <input
                 type="file"
@@ -105,9 +148,7 @@ export default function GenerateBox() {
             </div>
             <ButtonWithIcon
               action="Generate"
-              handleClick={() => {
-                setGenerated("something");
-              }}
+              handleClick={handleGenerate}
               loaderColor="#ffffff"
               icon={generateIcon}
               containerStyle="bg-black rounded-full  py-[1.2rem] mt-[2rem] min-w-[15rem]"
@@ -129,56 +170,71 @@ export default function GenerateBox() {
         <p className="text-[2rem] mt-[1.5rem]">{prompt}</p>
         <hr className=" mx-[3rem] mt-[2rem] mb-[4rem]" />
         <p className="text-[1.5rem] text-astraTextGrey mb-[2rem]">Results:</p>
-        <div className="flex gap-x-[2rem]">
-          {[sample1, sample2, sample3, sample4].map((item, index) => (
-            <Image key={index} src={item} alt="" width={220} height={260} />
-          ))}
-        </div>
+        {isPending ? (
+          <div className="flex justify-center items-center py-[4rem] ">
+            <LoaderSvg color="#000000" />
+          </div>
+        ) : (
+          <div className="flex gap-x-[2rem]">
+            {generatedImages.map((item, index) => (
+              <Image
+                key={index}
+                src={item}
+                alt=""
+                width={220}
+                height={260}
+                className=""
+              />
+            ))}
+          </div>
+        )}
         <div className="mx-auto w-[max-content]">
           <ButtonWithIcon
             action="Bring Your idea To Life"
-            handleClick={() => {
-              setSkillNeededModal(true);
-            }}
+            handleClick={handleAddCreator}
             loaderColor="#ffffff"
             icon={generateIcon}
             containerStyle="bg-astraBlue w-[22rem] rounded-[.5rem] py-[1.2rem] mt-[10rem] mx-auto"
             fontStyle="text-white text-[1.5rem]"
             iconWidth="w-[2.4rem]"
+            animate={isPendingAddCreator}
           />
         </div>
-        <SkillNeededModal
+        {/* <SkillNeededModal
           isVisible={skillNeededModal}
           handleCancel={() => {
             setSkillNeededModal(false);
           }}
-          handleProceed={() => {
-            route.push("/additional-information-1");
-          }}
+          handleProceed={handleAddCreator}
+          isLoading={isPendingAddCreator}
         >
           <div>
             {[
               {
                 id: 1,
                 title: "Graphic Designer",
+                values: "graphicsDesigner",
                 description: " ",
                 icon: featuredIcon,
               },
               {
                 id: 2,
                 title: "Fashion Illustrator",
+                values: "fashionIllustrator",
                 description: " ",
                 icon: featuredIcon,
               },
               {
                 id: 3,
                 title: "Tech Pack Designer",
+                values: "techPackDesigner",
                 description: " ",
                 icon: featuredIcon,
               },
               {
                 id: 4,
                 title: "Manufacture a Sample",
+                values: "manufacturer",
                 description:
                   "Find a tailor or manufacturer to make a sample made",
                 icon: featuredIcon,
@@ -187,9 +243,11 @@ export default function GenerateBox() {
               <div
                 key={item.id}
                 className={`flex justify-between items-center p-[1.6rem] rounded-[1.2rem] border mt-[2rem] ${
-                  selectedId === item.id ? "border-blue-500" : "border-gray-300"
+                  selectedId === item.values
+                    ? "border-blue-500"
+                    : "border-gray-300"
                 }`}
-                onClick={() => setSelectedId(item.id)}
+                onClick={() => setSelectedId(item.values)}
               >
                 <div className="flex items-center gap-x-[1.6rem]">
                   <Image src={item.icon} alt="" width={32} height={32} />
@@ -200,7 +258,7 @@ export default function GenerateBox() {
                     </p>
                   </div>
                 </div>
-                {selectedId === item.id && (
+                {selectedId === item.values && (
                   <Image
                     src={tickedIcon}
                     alt="Selected"
@@ -210,20 +268,8 @@ export default function GenerateBox() {
                 )}
               </div>
             ))}
-            {/* <div className="flex justify-between items-center p-[1.6rem] rounded-[1.2rem] border mt-[2rem]">
-              <div className="flex items-center gap-x-[1.6rem] ">
-                <Image src={featuredIcon} alt="" width={32} height={32} />
-                <div>
-                  <p className="text-[1.7rem]">Graphic Designer</p>
-                  <p className="text-[1.4rem] text-astraTextGrey">
-                    Find a tailor or manufacturer to make a sample made
-                  </p>
-                </div>
-              </div>
-              <Image src={tickedIcon} alt="" width={24} height={24} />
-            </div> */}
           </div>
-        </SkillNeededModal>
+        </SkillNeededModal> */}
       </div>
     );
   }

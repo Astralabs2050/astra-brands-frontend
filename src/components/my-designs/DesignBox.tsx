@@ -3,16 +3,17 @@ import {
   applicationIcon,
   chatIcon,
   deleteIcon,
-  designSample1,
-  designSample2,
-  designSample3,
   detailsIcon,
   mintIcon,
   optionsIcon,
   piecesIcon,
   reportIcon,
 } from "@/image";
+import { Query } from "@/network/constant";
+import { getJobs } from "@/network/myDesigns";
 import ButtonWithIcon from "@/shared/ButtonWithIcon";
+import LoaderSvg from "@/shared/LoaderSvg";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,18 +31,30 @@ export function Designs({
 }) {
   const [popUp, setPopup] = useState<boolean>(false);
   const route = useRouter();
+
   return (
     <div
       className="p-[1.4rem] rounded-[1rem] w-[max-content] border"
       onClick={() => setPopup(false)}
     >
-      <Image src={image} width={230} height={260} alt="design sample" />
+      <div className="max-h-[26rem] max-w-[23rem] min-h-[26rem] min-w-[23rem] overflow-hidden">
+        <Image
+          src={image}
+          width={230}
+          height={260}
+          alt="design sample"
+          style={{ width: "100%", height: "100%" }}
+          className="object-contain"
+        />
+      </div>
       <div className="flex justify-between items-center mt-[2rem]">
         <div>
           <p className="text-[1.8rem] font-bold ">{name}</p>
           <div className="flex gap-x-[.6rem] items-center">
             <Image src={piecesIcon} width={15} height={15} alt="" />
-            <p className="text-[1.2rem]">{numberOfPiece} Pieces</p>
+            <p className="text-[1.2rem]">
+              {numberOfPiece} {numberOfPiece === 1 ? "Piece" : "Pieces"}
+            </p>
           </div>
         </div>
         <div className="flex relative">
@@ -126,6 +139,13 @@ export function Designs({
 
 export default function DesignBox() {
   const [category, setCategory] = useState<string>("");
+  const { data, isPending } = useQuery({
+    queryFn: getJobs,
+    queryKey: [Query.GET_JOBS_QUERY],
+  });
+
+  const jobsData =
+    data && data.status === true && !("error" in data) ? data.data : null;
 
   return (
     <div className="w-[100%] p-[4rem]">
@@ -160,35 +180,23 @@ export default function DesignBox() {
         </p>
       </div>
       <hr className="mt-[1.5rem] mb-[3rem]" />
-      <div className="flex gap-x-[2rem]">
-        {[
-          {
-            name: "Coloured Jumpsuits",
-            numberOfPiece: 3,
-            image: designSample1,
-            status: "created",
-          },
-          {
-            name: "Coloured Jumpsuits",
-            numberOfPiece: 3,
-            image: designSample2,
-            status: "ongoing",
-          },
-          {
-            name: "Coloured Jumpsuits",
-            numberOfPiece: 3,
-            image: designSample3,
-            status: "minted",
-          },
-        ].map((item, index) => (
-          <Designs
-            key={index}
-            name={item.name}
-            image={item.image}
-            numberOfPiece={item.numberOfPiece}
-            status={item.status}
-          />
-        ))}
+      <div className="flex flex-wrap gap-[2rem]">
+        {isPending ? (
+          <div className="my-[10rem] flex justify-center items-center w-[100%]">
+            <LoaderSvg color="#000000" />
+          </div>
+        ) : (
+          jobsData &&
+          jobsData.map((item, index) => (
+            <Designs
+              key={index}
+              name={item?.design?.outfitName}
+              image={item?.design?.media[0].link}
+              numberOfPiece={item?.design.pieceNumber}
+              status="created"
+            />
+          ))
+        )}
       </div>
     </div>
   );

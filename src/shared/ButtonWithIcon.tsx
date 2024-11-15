@@ -30,7 +30,7 @@ export default function ButtonWithIcon({
       onClick={handleClick}
     >
       {animate ? (
-        <div>
+        <div className="flex justify-center items-center">
           <LoaderSvg color={loaderColor} />
         </div>
       ) : (

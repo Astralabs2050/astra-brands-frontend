@@ -5,11 +5,17 @@ import {
   profileSettingsIcon,
   securitySettingsIcon,
 } from "@/image";
+import { TOKEN_NAME, USER_PROFILE } from "@/network/constant";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function SettingsBox() {
   const route = useRouter();
+  const handleSignOut = () => {
+    sessionStorage.removeItem(TOKEN_NAME);
+    sessionStorage.removeItem(USER_PROFILE);
+    route.push("/");
+  };
   return (
     <div className="p-[5rem] flex flex-wrap gap-[2.5rem]">
       {[
@@ -43,7 +49,7 @@ export default function SettingsBox() {
         <div
           key={index}
           className="p-[3rem] border rounded-[1rem] w-[30rem] h-[24rem] cursor-pointer"
-          onClick={() => route.push(item.link)}
+          onClick={index === 3 ? handleSignOut : () => route.push(item.link)}
         >
           <div>
             <Image src={item.icon} alt="" height={48} width={48} />

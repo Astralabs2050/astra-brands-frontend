@@ -21,6 +21,7 @@ const config: Config = {
         astraBorderGrey: "#F2F2F2",
         astraOffWhite: "#FAFAFA",
         astraTextGrey: "#4F4F4F",
+        astraActionGrey: "#686868",
       },
     },
   },

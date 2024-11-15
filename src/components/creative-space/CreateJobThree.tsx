@@ -6,7 +6,13 @@ import CustomRadioButtonGroup from "@/shared/CustomRadioButtons";
 import JobFrame from "@/shared/JobFrame";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Dayjs } from "dayjs";
+import { useMutation } from "@tanstack/react-query";
+import { createJob } from "@/network/creativeSpace";
+import toast from "react-hot-toast";
 
 export default function CreateJobThree() {
   const route = useRouter();
@@ -22,17 +28,48 @@ export default function CreateJobThree() {
     }
   };
 
-  const [selectedOption1, setSelectedOption1] = useState<string>("");
-  const [selectedOption2, setSelectedOption2] = useState<string>("");
-  const [selectedOption3, setSelectedOption3] = useState<string>("");
-  const options = [
-    "More than 6 months",
-    "3 to 6 months",
-    "1 to 3 months",
-    "1 to 3 weeks",
-  ];
-  const yesOrNo = ["Yes", "No"];
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [formatedDate, setFormatedDate] = useState<string>("");
 
+  const handleDateChange = (newDate: Dayjs | null) => {
+    setSelectedDate(newDate);
+    if (newDate) {
+      const formattedDate = newDate.format("MM/DD/YYYY");
+      setFormatedDate(formattedDate);
+    }
+  };
+
+  const [selectedOption3, setSelectedOption3] = useState<string>("");
+  const [designId, setDesignId] = useState<string>("");
+  const yesOrNo = ["Yes", "No"];
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const desID = localStorage.getItem("designId");
+      setDesignId(desID ?? "");
+    }
+  }, []);
+
+  //Create Job
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: createJob,
+  });
+  const handleCreateJob = async () => {
+    const res = await mutateAsync({
+      designId: designId,
+      description: text,
+      manufacturer: selectedOption3 === "Yes" ? true : false,
+      timeline: formatedDate,
+    });
+    if ((res && "error" in res) || (res && res.status === false)) {
+      toast.error(res.message ?? "");
+    } else if (res && res.data) {
+      route.push("/job-confirmation");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("designId");
+        localStorage.removeItem("generatedImages");
+      }
+    }
+  };
   return (
     <JobFrame
       title="Create a Job"
@@ -41,6 +78,34 @@ export default function CreateJobThree() {
       link="/additional-information-2"
     >
       <div className="mt-[7rem] mx-[5rem]">
+        <p className="text-[1.7rem] mb-[3rem]">
+          Select the Timeline for your different created jobs.*
+        </p>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Select Date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            className="w-[50rem] text-[1.4rem]"
+          />
+        </LocalizationProvider>
+        <hr className="m-[5rem]" />
+        <p className="text-[1.7rem] mb-[3rem]">
+          Would you be sending your fabric to the manufacturer for this job?*
+        </p>
+        <CustomRadioButtonGroup
+          options={yesOrNo}
+          selectedOption={selectedOption3}
+          onChange={setSelectedOption3}
+        />
+        <div className="flex items-center gap-x-[1rem] p-[2rem] bg-astraGreyBg rounded-[1rem]">
+          <Image src={blueWarning} alt="" width={20} height={20} />
+          <p className="text-[1.5rem] text-astraTextGrey ">
+            We recommend that you send your preferred fabric to the manufacturer
+            to avoid dispute and ensure quality production of your outfit
+          </p>
+        </div>
+        <hr className="m-[5rem]" />
         <p className="text-[1.5rem] mb-[1rem]">Job Description*</p>
         <div className="border border-astraTextGrey rounded-[1rem] p-[3rem]">
           <textarea
@@ -66,38 +131,6 @@ export default function CreateJobThree() {
           </div>
         </div>
         <hr className="m-[5rem]" />
-        <p className="text-[1.7rem] mb-[3rem]">
-          Select the Timeline for your different created jobs.*
-        </p>
-        <p className="text-[2rem] mb-[1.8rem]">Graphic Designer.</p>
-        <CustomRadioButtonGroup
-          options={options}
-          selectedOption={selectedOption1}
-          onChange={setSelectedOption1}
-        />
-        <p className="text-[2rem] mb-[1.8rem]">Manufacture a Sample.</p>
-        <CustomRadioButtonGroup
-          options={options}
-          selectedOption={selectedOption2}
-          onChange={setSelectedOption2}
-        />
-        <hr className="m-[5rem]" />
-        <p className="text-[1.7rem] mb-[3rem]">
-          Would you be sending your fabric to the manufacturer for this job?*
-        </p>
-        <CustomRadioButtonGroup
-          options={yesOrNo}
-          selectedOption={selectedOption3}
-          onChange={setSelectedOption3}
-        />
-        <div className="flex items-center gap-x-[1rem] p-[2rem] bg-astraGreyBg rounded-[1rem]">
-          <Image src={blueWarning} alt="" width={20} height={20} />
-          <p className="text-[1.5rem] text-astraTextGrey ">
-            We recommend that you send your preferred fabric to the manufacturer
-            to avoid dispute and ensure quality production of your outfit
-          </p>
-        </div>
-        <hr className="m-[5rem]" />
         <div className="flex justify-center gap-x-[2rem] items-center">
           <Button
             action="Cancel"
@@ -112,9 +145,9 @@ export default function CreateJobThree() {
           <Button
             action="Create Jobs"
             width="w-[25rem]"
-            handleClick={() => {
-              route.push("/job-confirmation");
-            }}
+            handleClick={handleCreateJob}
+            animate={isPending}
+            isDisabled={isPending}
             fontSize="text-[1.3rem] font-bold"
             rounded
           />

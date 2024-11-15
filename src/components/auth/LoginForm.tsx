@@ -1,6 +1,7 @@
 "use client";
 
 import { login } from "@/network/auth";
+import { TOKEN_NAME, USER_PROFILE } from "@/network/constant";
 import Button from "@/shared/Button";
 import InputField from "@/shared/InputField";
 import { useMutation } from "@tanstack/react-query";
@@ -19,7 +20,6 @@ export default function LoginForm() {
   const loginForm = useFormik({
     initialValues: {
       email: "",
-      fullName: "",
       password: "",
     },
     validationSchema: Yup.object({
@@ -43,7 +43,11 @@ export default function LoginForm() {
       });
       if ((res && "error" in res) || (res && res.status === false)) {
         toast.error(res.message ?? "");
-      } else {
+      } else if (res && res.data) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(TOKEN_NAME, res.data?.token);
+          sessionStorage.setItem(USER_PROFILE, JSON.stringify(res.data));
+        }
         route.push("/dashboard");
       }
     },

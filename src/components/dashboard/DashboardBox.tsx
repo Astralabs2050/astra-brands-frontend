@@ -6,19 +6,39 @@ import {
   myDesignsTwo,
   zeroGraphState,
 } from "@/image";
+import { getUserDetails } from "@/network/auth";
+import { Query } from "@/network/constant";
 import Button from "@/shared/Button";
+import LoaderSvg from "@/shared/LoaderSvg";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function BrandDashboard() {
   const route = useRouter();
+  const { data, isPending } = useQuery({
+    queryFn: getUserDetails,
+    queryKey: [Query.GET_USER_INFO_QUERY],
+  });
+
+  const userData =
+    data && data.status === true && !("error" in data) ? data.data : null;
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center items-center w-[100%]">
+        <LoaderSvg color="#000000" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-[100%] p-[7rem]">
       <div className="flex flex-col justify-center items-center">
         <p className="text-center w-[max-content] text-[3rem]">
           Hello,{" "}
           <span className="text-[3rem] bg-[radial-gradient(44.96%_391.37%_at_49.64%_50%,_#3F37C9_2.67%,_#4361EE_100%)] inline-block text-transparent bg-clip-text leading-none">
-            Brand Name
+            {userData && userData?.brand.username}
           </span>
         </p>
         <p className="text-center w-[max-content] text-[1.6rem] text-astraTextGrey">
