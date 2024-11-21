@@ -23,11 +23,13 @@ export function Designs({
   numberOfPiece,
   image,
   status,
+  handleViewApplicants,
 }: {
   name: string;
   numberOfPiece: number;
   image: string;
   status: string;
+  handleViewApplicants: () => void;
 }) {
   const [popUp, setPopup] = useState<boolean>(false);
   const route = useRouter();
@@ -110,9 +112,7 @@ export function Designs({
       {status === "created" && (
         <ButtonWithIcon
           action="View Applicants"
-          handleClick={() => {
-            route.push("/applicants");
-          }}
+          handleClick={handleViewApplicants}
           loaderColor="#ffffff"
           icon={applicationIcon}
           containerStyle="bg-white rounded-[.8rem] py-[1.2rem] mt-[2rem] w-[100%] border border-black"
@@ -138,7 +138,8 @@ export function Designs({
 }
 
 export default function DesignBox() {
-  const [category, setCategory] = useState<string>("");
+  const route = useRouter();
+  const [category, setCategory] = useState<string>("created");
   const { data, isPending } = useQuery({
     queryFn: getJobs,
     queryKey: [Query.GET_JOBS_QUERY],
@@ -194,6 +195,9 @@ export default function DesignBox() {
               image={item?.design?.media[0].link}
               numberOfPiece={item?.design.pieceNumber}
               status="created"
+              handleViewApplicants={() =>
+                route.push(`/applicants?id=${item.id}`)
+              }
             />
           ))
         )}

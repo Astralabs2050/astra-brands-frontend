@@ -9,8 +9,11 @@ import {
 import Button from "@/shared/Button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import WalletModal from "./WalletModal";
+import { useState } from "react";
 
 export default function ApplicationDetailsBox() {
+  const [walletModal, setWalletModal] = useState<boolean>(false);
   const route = useRouter();
   return (
     <div className="px-[4rem] py-[6rem] bg-astraOffWhite w-[100%]">
@@ -165,7 +168,7 @@ export default function ApplicationDetailsBox() {
               action="Accept Terms"
               fontSize="text-[1.2rem]"
               width="w-[20rem]"
-              handleClick={() => route.push("/job-details")}
+              handleClick={() => setWalletModal(true)}
               rounded
             />
             <Button
@@ -181,6 +184,20 @@ export default function ApplicationDetailsBox() {
           </div>
         </div>
       </div>
+      <WalletModal
+        isVisible={walletModal}
+        handleCancel={() => setWalletModal(false)}
+        handleProceed={() => {}}
+      >
+        <div className="p-[2rem] border rounded-[1.4rem] my-[2.4rem]">
+          <p className="text-[1.8rem] text-astraTextGrey mb-[1rem]">
+            Timeline: 22nd November, 2024
+          </p>
+          <p className="text-[1.8rem] text-astraTextGrey">
+            Amount to pay: $500
+          </p>
+        </div>
+      </WalletModal>
     </div>
   );
 }

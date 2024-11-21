@@ -54,6 +54,14 @@ interface BrandDetails {
   media: string[]; // Adjust type if you have more details about media structure
 }
 
+export interface ResendOtpRequest {
+  email: string;
+}
+interface ResetPasswordRequest {
+  otp: string;
+  email: string;
+  password: string;
+}
 export const signup = async (
   payload: SignUpRequest
 ): Promise<BaseResponse<unknown>> => {
@@ -80,4 +88,22 @@ export const resendOtp = async (
 
 export const getUserDetails = async (): Promise<BaseResponse<BrandDetails>> => {
   return API.get<BrandDetails>(Endpoints.GET_USER_INFO);
+};
+
+export const forgotPassword = async (
+  payload: ResendOtpRequest
+): Promise<BaseResponse<unknown>> => {
+  return API.post<ResendOtpRequest, unknown>(
+    Endpoints.FORGOT_PASSWORD,
+    payload
+  );
+};
+
+export const resetPassword = async (
+  payload: ResetPasswordRequest
+): Promise<BaseResponse<unknown>> => {
+  return API.patch<ResetPasswordRequest, unknown>(
+    Endpoints.RESET_PASSWORD,
+    payload
+  );
 };

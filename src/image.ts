@@ -80,8 +80,16 @@ const metaMaskLogo = "/Metamask.svg";
 const coinBaseLogo = "/Coinbase.svg";
 const TorusLogo = "/Torus.svg";
 const FormaticLogo = "/Fortmatic.svg";
+const acceptApplicantIcon = "/acceptApplicant.svg";
+const searchIcon = "/searchIcon.svg";
+const paymentIcon = "/payment.svg";
+const paperClipIcon = "/Paperclip.svg";
 
 export {
+  paperClipIcon,
+  searchIcon,
+  paymentIcon,
+  acceptApplicantIcon,
   ethereumLogo,
   tezozLogo,
   flowLogo,

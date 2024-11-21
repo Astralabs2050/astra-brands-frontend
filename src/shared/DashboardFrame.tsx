@@ -27,11 +27,13 @@ import Button from "./Button";
 interface DashboardFrameProps {
   children: React.ReactNode;
   withSideBar?: boolean;
+  noActions?: boolean;
 }
 
 export default function DashboardFrame({
   children,
   withSideBar,
+  noActions,
 }: DashboardFrameProps) {
   const route = useRouter();
   const pathname = usePathname();
@@ -46,28 +48,32 @@ export default function DashboardFrame({
           <div>
             <Image src={notificationIcon} alt="logo" height={25} width={25} />
           </div>
-          <div className="group relative flex items-center px-[3rem] py-[.8rem] rounded-full gap-x-[.8rem] bg-astraBorderGrey cursor-pointer overflow-hidden">
-            <div>
-              <Image src={astraCoin} alt="logo" height={30} width={30} />
+          {noActions || (
+            <div className="group relative flex items-center px-[3rem] py-[.8rem] rounded-full gap-x-[.8rem] bg-astraBorderGrey cursor-pointer overflow-hidden">
+              <div>
+                <Image src={astraCoin} alt="logo" height={30} width={30} />
+              </div>
+              <p className="text-[1.8rem]">
+                0.00 <span className="text-[1.8rem] font-[500]">ASTRAS</span>
+              </p>
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-white text-lg font-semibold">
+                  Coin Launching Soon!
+                </span>
+              </div>
             </div>
-            <p className="text-[1.8rem]">
-              0.00 <span className="text-[1.8rem] font-[500]">ASTRAS</span>
-            </p>
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="text-white text-lg font-semibold">
-                Coin Launching Soon!
-              </span>
-            </div>
-          </div>
+          )}
 
-          <Button
-            action="Create a new look"
-            width="w-[17rem]"
-            handleClick={() => route.push("/my-creative-space")}
-            fontSize="text-[1.5rem]"
-            rounded
-            backgroundColor="bg-astraBlue"
-          />
+          {noActions || (
+            <Button
+              action="Create a new look"
+              width="w-[17rem]"
+              handleClick={() => route.push("/my-creative-space")}
+              fontSize="text-[1.5rem]"
+              rounded
+              backgroundColor="bg-astraBlue"
+            />
+          )}
         </div>
       </div>
       <div className="flex">
