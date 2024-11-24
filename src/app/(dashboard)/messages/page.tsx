@@ -1,10 +1,11 @@
-import MessageFrame from "@/components/messages/MessageFrame";
+import NewMessageFrame from "@/components/messages/NewMessageFrame";
 import DashboardFrame from "@/shared/DashboardFrame";
 
 export default function Messages() {
   return (
     <DashboardFrame withSideBar noActions>
-      <MessageFrame />
+      {/* <MessageFrame /> */}
+      <NewMessageFrame />
     </DashboardFrame>
   );
 }

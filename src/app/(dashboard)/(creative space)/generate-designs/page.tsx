@@ -3,7 +3,7 @@ import DashboardFrame from "@/shared/DashboardFrame";
 
 export default function MyCreativeSpace() {
   return (
-    <DashboardFrame withSideBar>
+    <DashboardFrame withSideBar noActions>
       <GenerateBox />
     </DashboardFrame>
   );

@@ -38,7 +38,7 @@ export default function BrandDashboard() {
         <p className="text-center w-[max-content] text-[3rem]">
           Hello,{" "}
           <span className="text-[3rem] bg-[radial-gradient(44.96%_391.37%_at_49.64%_50%,_#3F37C9_2.67%,_#4361EE_100%)] inline-block text-transparent bg-clip-text leading-none">
-            {userData && userData?.brand.username}
+            {userData && userData?.brand?.username}
           </span>
         </p>
         <p className="text-center w-[max-content] text-[1.6rem] text-astraTextGrey">

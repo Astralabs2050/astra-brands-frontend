@@ -79,9 +79,49 @@ interface Creator {
 }
 
 interface AcceptOrRejectRequest {
-  jobApplicationId: "e9dbc79e-1f83-4ee5-b5e7-8e5e75c02358";
-  status: true;
-  negotiation: false;
+  jobApplicationId: string;
+  status: boolean;
+}
+
+interface SingleJobApplicant {
+  id: string;
+  jobId: string;
+  userId: string;
+  amount: number;
+  status: boolean;
+  negotiation: boolean;
+  wallet: string;
+  minAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    password: null | string;
+    verified: boolean;
+    active: boolean;
+    lastseen: null | string;
+    otp: string;
+    isOtpVerified: null | string;
+    otpCreatedAt: null | string;
+    isOtpExp: null | string;
+    isAdmin: boolean;
+    userType: null | string;
+    createdAt: string;
+    updatedAt: string;
+    creator: {
+      id: string;
+      userId: string;
+      fullName: string;
+      location: string;
+      category: string[];
+      skills: string[];
+      creatorType: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    brand: null;
+  };
 }
 
 export const getJobs = async (): Promise<BaseResponse<Job[]>> => {
@@ -94,10 +134,19 @@ export const getApplicants = async (
   return API.get<JobApplicant[]>(`${Endpoints.VIEW_APPLICANTS}?jobId=${id}`);
 };
 
+export const getSingleApplicant = async (
+  jobId: string,
+  userId: string
+): Promise<BaseResponse<SingleJobApplicant>> => {
+  return API.get<SingleJobApplicant>(
+    `${Endpoints.VIEW_SINGLE_APPLICANT}jobId=${jobId}&userId=${userId}`
+  );
+};
+
 export const acceptOrReject = async (
   payload: AcceptOrRejectRequest
 ): Promise<BaseResponse<unknown>> => {
-  return API.post<AcceptOrRejectRequest, unknown>(
+  return API.patch<AcceptOrRejectRequest, unknown>(
     Endpoints.ACCEPT_OR_REJECT,
     payload
   );

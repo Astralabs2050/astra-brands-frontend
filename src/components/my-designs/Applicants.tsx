@@ -6,7 +6,6 @@ import {
   coverImage2,
   coverImage3,
   emailIcon,
-  phoneIcon,
   profilePicture,
   webIcon,
 } from "@/image";
@@ -78,10 +77,10 @@ export default function ApplicantBox() {
                   <Image src={emailIcon} alt="" height={20} width={20} />
                   <p className="text-[1.4rem]">{item?.user?.email}</p>
                 </div>
-                <div className="flex items-center justify-center gap-x-[1rem] mb-[1.6rem]">
+                {/* <div className="flex items-center justify-center gap-x-[1rem] mb-[1.6rem]">
                   <Image src={phoneIcon} alt="" height={20} width={20} />
                   <p className="text-[1.4rem]">0978412176</p>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-center gap-x-[1rem] mb-[1.6rem] w-[100%]">
                   <Image src={webIcon} alt="" height={20} width={20} />
                   <p className="text-[1.4rem]">
@@ -93,7 +92,9 @@ export default function ApplicantBox() {
                   fontSize="text-[1.2rem]"
                   width="w-[100%] py-[1.2rem]"
                   handleClick={() => {
-                    route.push("/application-details");
+                    route.push(
+                      `/application-details?jobId=${item.jobId}&userId=${item.userId}`
+                    );
                   }}
                   inverse
                   rounded

@@ -15,14 +15,16 @@ const ADD_CREATOR = "design/add-creator";
 const ADDITIONAL_INFO = "design/additional-information";
 const CREATE_JOB = "job/create-job";
 const GET_JOBS = "job/get-job";
-const VIEW_APPLICANTS = "/job/job-application";
-const ACCEPT_OR_REJECT = "/job/accept-reject-job" as const;
+const VIEW_APPLICANTS = "job/job-application";
+const VIEW_SINGLE_APPLICANT = "job/job-application/1?";
+const ACCEPT_OR_REJECT = "job/appcept-reject-job" as const;
 const FORGOT_PASSWORD = "auth/forgot-password" as const;
 const RESET_PASSWORD = "auth/reset-password" as const;
 
 const GET_USER_INFO_QUERY = "GET_USER_INFO_QUERY" as const;
 const GET_JOBS_QUERY = "GET_JOBS_QUERY" as const;
 const VIEW_APPLICANTS_QUERY = "VIEW_APPLICANTS_QUERY" as const;
+const VIEW_SINGLE_APPLICANT_QUERY = "VIEW_SINGLE_APPLICANT_QUERY" as const;
 
 export const Endpoints = {
   FORGOT_PASSWORD,
@@ -39,10 +41,12 @@ export const Endpoints = {
   ADDITIONAL_INFO,
   GET_JOBS,
   VIEW_APPLICANTS,
+  VIEW_SINGLE_APPLICANT,
 };
 
 export const Query = {
   GET_USER_INFO_QUERY,
   GET_JOBS_QUERY,
   VIEW_APPLICANTS_QUERY,
+  VIEW_SINGLE_APPLICANT_QUERY,
 };
