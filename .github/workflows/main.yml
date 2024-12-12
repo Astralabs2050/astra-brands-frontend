@@ -1,0 +1,36 @@
+name: CI/CD with Self-Hosted Runner
+on:
+  push:
+    branches:
+      - main # Replace with your branch name if different
+
+jobs:
+  deploy:
+    runs-on: self-hosted # Specify self-hosted runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.17.0" # Update to a compatible version for Next.js
+
+      - name: Verify Node.js version
+        run: node -v
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the Next.js application
+        env:
+          NODE_ENV: production
+        run: npm run build
+      - name: Deploy the application
+        shell: bash
+        run: |
+          cd C:/Users/Administrator/Documents/actions-runner2/_work/astra-makers-frontend/astra-makers-frontend
+          npm install
+          npm run build
+          start yarn start -port 3005
