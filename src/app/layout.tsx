@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import QueryClientProviderWrapper from "@/helpers/QueryClientWrapper";
+
 import { Toaster } from "react-hot-toast";
+import { Providers } from "@/helpers/QueryClientWrapper";
+import { FWalletProvider } from "@/context/WalletProvider";
 
 export const metadata: Metadata = {
   title: "Astra Dashboard for Brands",
@@ -15,11 +17,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className=" bg-astraOffWhite">
-        <QueryClientProviderWrapper>
-          <Toaster position="top-center" />
-          {children}
-        </QueryClientProviderWrapper>
+      <body className="bg-astraOffWhite">
+        <FWalletProvider>
+          <Providers>
+            <Toaster position="top-center" />
+            {children}
+          </Providers>
+        </FWalletProvider>
       </body>
     </html>
   );

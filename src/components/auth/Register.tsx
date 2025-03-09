@@ -1,6 +1,6 @@
 "use client";
 import { googleLogo } from "@/image";
-import { signup } from "@/network/auth";
+import { signup, SignUpRequest } from "@/network/auth";
 import Button from "@/shared/Button";
 import InputField from "@/shared/InputField";
 import { useMutation } from "@tanstack/react-query";
@@ -10,30 +10,26 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
 
-interface RegisterProps {
-  email: string;
-  userName: string;
-  password: string;
-}
-
 export default function Register() {
   const route = useRouter();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: signup,
   });
 
-  const register = useFormik<RegisterProps>({
+  const register = useFormik<SignUpRequest>({
     initialValues: {
       email: "",
-      userName: "",
+      username: "",
       password: "",
+      country: "",
+      city: "",
     },
     validationSchema: Yup.object({
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
 
-      userName: Yup.string()
+      username: Yup.string()
         .min(2, "Full Name must be at least 2 characters")
         .required("Full Name is required"),
 
@@ -59,7 +55,9 @@ export default function Register() {
       const res = await mutateAsync({
         email: values.email,
         password: values.password,
-        username: values.userName,
+        username: values.username,
+        country: values.country,
+        city: values.city,
       });
       if (res && "error" in res) {
         toast.error(res.error);
@@ -99,16 +97,44 @@ export default function Register() {
         borderRadius="rounded-full"
       />
       <InputField
-        name="userName"
+        name="username"
         placeholder="@ Choose your username"
         onChange={register.handleChange}
         onBlur={register.handleBlur}
         error={
-          register.touched.userName && register.errors.userName
-            ? register.errors.userName
+          register.touched.username && register.errors.username
+            ? register.errors.username
             : null
         }
-        value={register.values.userName}
+        value={register.values.username}
+        type="text"
+        borderRadius="rounded-full"
+      />
+      <InputField
+        name="country"
+        placeholder="Enter Country"
+        onChange={register.handleChange}
+        onBlur={register.handleBlur}
+        error={
+          register.touched.country && register.errors.country
+            ? register.errors.country
+            : null
+        }
+        value={register.values.country}
+        type="text"
+        borderRadius="rounded-full"
+      />
+      <InputField
+        name="city"
+        placeholder="Enter your city"
+        onChange={register.handleChange}
+        onBlur={register.handleBlur}
+        error={
+          register.touched.city && register.errors.city
+            ? register.errors.city
+            : null
+        }
+        value={register.values.city}
         type="text"
         borderRadius="rounded-full"
       />

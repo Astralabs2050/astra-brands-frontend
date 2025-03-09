@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  activeCreativeSpaceIcon,
-  activeDashboardIcon,
-  activeDesignIcon,
-  activeMessageIcon,
-  activeMystoreIcon,
-  activeSettingsIcon,
   astraCoin,
   creativeSpaceIcon,
   dashboardIcon,
@@ -66,9 +60,9 @@ export default function DashboardFrame({
 
           {noActions || (
             <Button
-              action="Create a new look"
+              action="Chat with agent"
               width="w-[17rem]"
-              handleClick={() => route.push("/my-creative-space")}
+              handleClick={() => route.push("/agent")}
               fontSize="text-[1.5rem]"
               rounded
               backgroundColor="bg-astraBlue"
@@ -96,23 +90,30 @@ export default function DashboardFrame({
                 {
                   name: "Dashboard",
                   icon: dashboardIcon,
-                  activeIcon: activeDashboardIcon,
+                  activeIcon: dashboardIcon,
                   url: "/dashboard",
                   active: pathname === "/dashboard",
                 },
+                // {
+                //   name: "My Creative Space",
+                //   icon: creativeSpaceIcon,
+                //   activeIcon: activeCreativeSpaceIcon,
+                //   url: "/my-creative-space",
+                //   active:
+                //     pathname === "/my-creative-space" ||
+                //     pathname === "/generate-designs",
+                // },
                 {
-                  name: "My Creative Space",
+                  name: "AI agent",
                   icon: creativeSpaceIcon,
-                  activeIcon: activeCreativeSpaceIcon,
-                  url: "/my-creative-space",
-                  active:
-                    pathname === "/my-creative-space" ||
-                    pathname === "/generate-designs",
+                  activeIcon: creativeSpaceIcon,
+                  url: "/agent",
+                  active: pathname === "/agent",
                 },
                 {
                   name: "My Designs",
                   icon: designsIcon,
-                  activeIcon: activeDesignIcon,
+                  activeIcon: designsIcon,
                   url: "/my-designs",
                   active:
                     pathname === "/my-designs" ||
@@ -122,21 +123,21 @@ export default function DashboardFrame({
                 {
                   name: "Store Analytics",
                   icon: myStoreIcon,
-                  activeIcon: activeMystoreIcon,
+                  activeIcon: myStoreIcon,
                   url: "/store-analytics",
                   active: pathname === "/store-analytics",
                 },
                 {
                   name: "Messages",
                   icon: messageIcon,
-                  activeIcon: activeMessageIcon,
+                  activeIcon: messageIcon,
                   url: "/messages",
                   active: pathname === "/messages",
                 },
                 {
                   name: "Account Settings",
                   icon: settingsIcon,
-                  activeIcon: activeSettingsIcon,
+                  activeIcon: settingsIcon,
                   url: "/account-settings",
                   active:
                     pathname === "/account-settings" ||
@@ -147,7 +148,7 @@ export default function DashboardFrame({
                 {
                   name: "Help & Support",
                   icon: helpAndSupportIcon,
-                  activeIcon: "",
+                  activeIcon: helpAndSupportIcon,
                   url: "/support",
                   active: pathname === "/support",
                 },
@@ -157,7 +158,7 @@ export default function DashboardFrame({
                   className={`flex items-center gap-x-[2rem]  ${
                     minimize ? "w-[6rem]  pl-[2rem]" : "w-[24.8rem] pl-[2.5rem]"
                   }  py-[1.8rem] cursor-pointer mb-[1.5rem] ${
-                    item.active ? "bg-black rounded-[1rem]" : ""
+                    item.active ? "bg-[#ececed] rounded-[1rem]" : ""
                   } ${index === 7 && "mt-[10rem]"} `}
                   onClick={() => route.push(item.url)}
                 >
@@ -173,10 +174,10 @@ export default function DashboardFrame({
                     <p
                       className={`text-[1.6rem] ${
                         item.active
-                          ? "text-white"
+                          ? "text-black"
                           : index === 1
                           ? "text-astraBlue"
-                          : "text-astraTextGrey"
+                          : "text-black"
                       }`}
                     >
                       {item.name}

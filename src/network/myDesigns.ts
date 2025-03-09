@@ -24,6 +24,7 @@ interface Design {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  budget: number;
   media: Media[];
 }
 
@@ -124,6 +125,12 @@ interface SingleJobApplicant {
   };
 }
 
+interface JobStatusUpdateReq {
+  jobId: string;
+  status: string;
+  escorowId: string;
+}
+
 export const getJobs = async (): Promise<BaseResponse<Job[]>> => {
   return API.get<Job[]>(Endpoints.GET_JOBS);
 };
@@ -148,6 +155,15 @@ export const acceptOrReject = async (
 ): Promise<BaseResponse<unknown>> => {
   return API.patch<AcceptOrRejectRequest, unknown>(
     Endpoints.ACCEPT_OR_REJECT,
+    payload
+  );
+};
+
+export const updateStatus = async (
+  payload: JobStatusUpdateReq
+): Promise<BaseResponse<unknown>> => {
+  return API.patch<JobStatusUpdateReq, unknown>(
+    Endpoints.UPDATE_JOB_STATUS,
     payload
   );
 };

@@ -4,7 +4,7 @@ import Image from "next/image";
 import GoBack from "./GoBack";
 interface OnboardFrameProps {
   link: string;
-  pageNumber: string;
+  pageNumber?: string;
   children: React.ReactNode;
   title: string;
   description: string;
@@ -31,7 +31,13 @@ export default function JobFrame({
               {description}
             </p>
           </div>
-          <p className="text-[2rem] text-astraBlue text-bold">{pageNumber}</p>
+          <p
+            className={`text-[2rem] text-astraBlue text-bold ${
+              pageNumber || "opacity-0"
+            }`}
+          >
+            {pageNumber}
+          </p>
         </div>
         <div className="mx-auto">{children}</div>
       </div>

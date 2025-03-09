@@ -6,6 +6,7 @@ import {
   myDesignsTwo,
   zeroGraphState,
 } from "@/image";
+import { getStat } from "@/network/analytics";
 import { getUserDetails } from "@/network/auth";
 import { Query } from "@/network/constant";
 import Button from "@/shared/Button";
@@ -24,7 +25,17 @@ export default function BrandDashboard() {
   const userData =
     data && data.status === true && !("error" in data) ? data.data : null;
 
-  if (isPending) {
+  const { data: dataStats, isPending: isPendingStats } = useQuery({
+    queryFn: getStat,
+    queryKey: [Query.GET_STATS_QUERY],
+  });
+
+  const statsData =
+    dataStats && dataStats.status === true && !("error" in dataStats)
+      ? dataStats.data
+      : null;
+
+  if (isPending || isPendingStats) {
     return (
       <div className="flex justify-center items-center w-[100%]">
         <LoaderSvg color="#000000" />
@@ -53,9 +64,9 @@ export default function BrandDashboard() {
         </p>
         <div className="mt-[2.5rem] flex gap-x-[4rem]">
           {[
-            { title: "Total Sales", value: "$0.00" },
-            { title: "Total Orders", value: "0" },
-            { title: "Impressions", value: "0" },
+            { title: "Total Amount", value: `$${statsData?.totalAmount}` },
+            { title: "Total Jobs", value: statsData?.totalJobsCreated },
+            { title: "Impressions", value: statsData?.totalImpressions },
           ].map((item, index) => (
             <div
               key={index}
@@ -75,6 +86,7 @@ export default function BrandDashboard() {
               <p className="text-[1.5rem]">Month</p>
             </div>
           </div>
+          {/* <Chart /> */}
           <div className="w-[100%] mt-[3rem]">
             <Image
               src={zeroGraphState}

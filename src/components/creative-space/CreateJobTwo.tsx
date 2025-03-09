@@ -53,9 +53,6 @@ export default function CreateJobTwo() {
       }
     };
 
-  console.log(previews[0], uploadedImages[0]);
-  console.log(uploadedImages[0]?.length);
-
   const {
     mutateAsync: mutateAsync,
     isPending: isPendingAdditionalInformation,
@@ -66,10 +63,12 @@ export default function CreateJobTwo() {
     if (typeof window !== "undefined") {
       const jobData = JSON.parse(localStorage.getItem("storedJob") || "{}");
       const designId = localStorage.getItem("designId");
-      const imageData = uploadedImages.map((image, index) => ({
-        image,
-        view: labels[index].toLowerCase().replace(" ", ""),
-      }));
+      const imageData = uploadedImages
+        .map((image, index) => ({
+          image: image.trim(),
+          view: labels[index]?.toLowerCase().replace(/\s+/g, "").trim() || "",
+        }))
+        .filter((data) => data.image !== "" && data.view !== "");
       const prints = previews
         .filter((preview) => preview !== "")
         .map((preview) => ({
@@ -93,9 +92,6 @@ export default function CreateJobTwo() {
         toast.error(res.message ?? "");
       } else if ((res && res.data) || res.status === true) {
         route.push("/additional-information-3");
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("storedJob");
-        }
       }
     }
   };

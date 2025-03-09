@@ -22,12 +22,14 @@ function User({ user, brandId, setBrandId }: USERFUNCTION) {
           <p className="text-[1.5rem]">
             {user?.maker?.creator?.fullName || user?.maker?.brand?.username}
           </p>
-          <p className="text-[1.5rem] text-astraTextGrey">2:28PM</p>
+          {/* <p className="text-[1.5rem] text-astraTextGrey">2:28PM</p> */}
         </div>
         <p className="text-[1.5rem] text-black font-bold mt-[.8rem] mb-[1rem]">
           {user?.design?.outfitName}
         </p>
-        <p className="text-[1.5rem] text-astraTextGrey">{user?.description}</p>
+        <p className="text-[1.5rem] text-astraTextGrey">
+          {user?.user?.userType}
+        </p>
       </div>
     </div>
   );

@@ -5,6 +5,8 @@ export interface SignUpRequest {
   email: string;
   password: string;
   username: string;
+  country: string;
+  city: string;
 }
 
 export interface VerifyOtpRequest {

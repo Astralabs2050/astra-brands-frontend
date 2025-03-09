@@ -84,8 +84,10 @@ const acceptApplicantIcon = "/acceptApplicant.svg";
 const searchIcon = "/searchIcon.svg";
 const paymentIcon = "/payment.svg";
 const paperClipIcon = "/Paperclip.svg";
+const backup = "/backup.webp";
 
 export {
+  backup,
   paperClipIcon,
   searchIcon,
   paymentIcon,

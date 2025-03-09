@@ -3,6 +3,7 @@ import { Endpoints } from "./constant";
 
 interface GenerateRequest {
   prompt: string;
+  image: string;
 }
 interface GenerateResponse {
   images: string[];
@@ -27,6 +28,26 @@ interface AdditionalInfoRequest {
     }[];
     prints: { image: string }[];
   };
+}
+
+export interface GenerateJobDesReq {
+  outfitName: string;
+  pieceNumber: number;
+  prompt: string;
+  creatorType: string;
+  pieces: {
+    pieceType: string;
+    designNumber: string;
+    piecePrice: number;
+  }[];
+  timeline: string;
+}
+
+interface DesRes {
+  JobTitle: string;
+  JobDescription: string;
+  SkillsRequired: string[];
+  ApplicationDeadline: string;
 }
 
 interface CreateNewJobRequest {
@@ -56,6 +77,15 @@ export const additionalInformation = async (
 ): Promise<BaseResponse<unknown>> => {
   return API.patch<AdditionalInfoRequest, unknown>(
     Endpoints.ADDITIONAL_INFO,
+    payload
+  );
+};
+
+export const generateJobDescription = async (
+  payload: GenerateJobDesReq
+): Promise<BaseResponse<DesRes>> => {
+  return API.post<GenerateJobDesReq, DesRes>(
+    Endpoints.GENERATE_JOB_DESCRIPTION,
     payload
   );
 };

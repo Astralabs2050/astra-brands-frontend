@@ -1,17 +1,16 @@
 "use client";
-import { blueWarning, writeWithAi } from "@/image";
+import { writeWithAi } from "@/image";
 import Button from "@/shared/Button";
 import ButtonWithIcon from "@/shared/ButtonWithIcon";
-import CustomRadioButtonGroup from "@/shared/CustomRadioButtons";
+
 import JobFrame from "@/shared/JobFrame";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { useMutation } from "@tanstack/react-query";
-import { createJob } from "@/network/creativeSpace";
+import { createJob, generateJobDescription } from "@/network/creativeSpace";
 import toast from "react-hot-toast";
 
 export default function CreateJobThree() {
@@ -39,12 +38,28 @@ export default function CreateJobThree() {
     }
   };
 
-  const [selectedOption3, setSelectedOption3] = useState<string>("");
+  const [selectedOption3] = useState<string>("");
   const [designId, setDesignId] = useState<string>("");
-  const yesOrNo = ["Yes", "No"];
+
+  const [nameOfOutfit, setOutfitName] = useState<string>("");
+  const [numberOfPiece, setPieceNumber] = useState<number>(0);
+  const [typedPrompt, setPrompt] = useState<string>("");
+  const [enteredPiece, setPieces] = useState<[]>([]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const desID = localStorage.getItem("designId");
+      const storedJob = localStorage.getItem("storedJob");
+      const prompt = localStorage.getItem("prompt");
+      if (storedJob) {
+        const parsedJobDetails = JSON.parse(storedJob);
+        setOutfitName(parsedJobDetails.data.outfitName);
+        setPieceNumber(parsedJobDetails.data.pieceNumber);
+        setPieces(parsedJobDetails.data.pieces);
+      }
+      if (prompt) {
+        setPrompt(prompt);
+      }
       setDesignId(desID ?? "");
     }
   }, []);
@@ -67,9 +82,50 @@ export default function CreateJobThree() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("designId");
         localStorage.removeItem("generatedImages");
+        localStorage.removeItem("storedJob");
+        localStorage.removeItem("prompt");
       }
     }
   };
+
+  const typeText = (fullText: string) => {
+    let index = 0;
+    const interval = setInterval(() => {
+      setText((prev) => prev + fullText[index]); // Add one character at a time
+      index++;
+
+      if (index >= fullText.length) {
+        clearInterval(interval); // Stop when all characters are typed
+      }
+    }, 50);
+  };
+  //Generate job description
+  const {
+    mutateAsync: mutateAsyncGenerateJobDescription,
+    isPending: isPendingGenerateJobDescription,
+  } = useMutation({
+    mutationFn: generateJobDescription,
+  });
+  const handleGenerateDescription = async () => {
+    const res = await mutateAsyncGenerateJobDescription({
+      outfitName: nameOfOutfit,
+      pieceNumber: numberOfPiece,
+      prompt: typedPrompt,
+      creatorType: "",
+      pieces: enteredPiece,
+      timeline: formatedDate,
+    });
+    if ((res && "error" in res) || (res && res.status === false)) {
+      toast.error(res.message ?? "");
+    } else if (res && res.data) {
+      const generatedText = `${res.data["JobTitle"]}\n\n${
+        res.data["JobDescription"]
+      }\n\nJob Requirements:\n${res.data["SkillsRequired"].join("\n")}`;
+      // setText(generatedText); // Directly set the text instead of clearing it
+      typeText(generatedText);
+    }
+  };
+
   return (
     <JobFrame
       title="Create a Job"
@@ -89,7 +145,7 @@ export default function CreateJobThree() {
             className="w-[50rem] text-[1.4rem]"
           />
         </LocalizationProvider>
-        <hr className="m-[5rem]" />
+        {/* <hr className="m-[5rem]" />
         <p className="text-[1.7rem] mb-[3rem]">
           Would you be sending your fabric to the manufacturer for this job?*
         </p>
@@ -104,7 +160,7 @@ export default function CreateJobThree() {
             We recommend that you send your preferred fabric to the manufacturer
             to avoid dispute and ensure quality production of your outfit
           </p>
-        </div>
+        </div> */}
         <hr className="m-[5rem]" />
         <p className="text-[1.5rem] mb-[1rem]">Job Description*</p>
         <div className="border border-astraTextGrey rounded-[1rem] p-[3rem]">
@@ -120,9 +176,10 @@ export default function CreateJobThree() {
               {text.length}/{maxChars}
             </p>
             <ButtonWithIcon
+              animate={isPendingGenerateJobDescription}
               action="Write with AI"
-              handleClick={() => {}}
-              loaderColor="#ffffff"
+              handleClick={handleGenerateDescription}
+              loaderColor="#000000"
               icon={writeWithAi}
               containerStyle="bg-white rounded-full  py-[1rem] px-[2rem] min-w-[14rem] border border-black"
               fontStyle="text-black  text-[1.4rem]"
@@ -137,6 +194,12 @@ export default function CreateJobThree() {
             width="w-[25rem]"
             handleClick={() => {
               route.push("/dashboard");
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("designId");
+                localStorage.removeItem("generatedImages");
+                localStorage.removeItem("storedJob");
+                localStorage.removeItem("prompt");
+              }
             }}
             fontSize="text-[1.3rem] font-bold"
             inverse

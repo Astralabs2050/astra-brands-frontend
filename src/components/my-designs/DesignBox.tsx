@@ -6,7 +6,6 @@ import {
   detailsIcon,
   mintIcon,
   optionsIcon,
-  piecesIcon,
   reportIcon,
 } from "@/image";
 import { Query } from "@/network/constant";
@@ -40,7 +39,7 @@ export function Designs({
       onClick={() => setPopup(false)}
     >
       <div className="max-h-[26rem] max-w-[23rem] min-h-[26rem] min-w-[23rem] overflow-hidden">
-        <Image
+        <img
           src={image}
           width={230}
           height={260}
@@ -53,10 +52,7 @@ export function Designs({
         <div>
           <p className="text-[1.8rem] font-bold ">{name}</p>
           <div className="flex gap-x-[.6rem] items-center">
-            <Image src={piecesIcon} width={15} height={15} alt="" />
-            <p className="text-[1.2rem]">
-              {numberOfPiece} {numberOfPiece === 1 ? "Piece" : "Pieces"}
-            </p>
+            <p className="text-[1.2rem]">${numberOfPiece}</p>
           </div>
         </div>
         <div className="flex relative">
@@ -192,8 +188,8 @@ export default function DesignBox() {
             <Designs
               key={index}
               name={item?.design?.outfitName}
-              image={item?.design?.media[0].link}
-              numberOfPiece={item?.design.pieceNumber}
+              image={item?.design?.media[0]?.link}
+              numberOfPiece={item?.design?.budget}
               status="created"
               handleViewApplicants={() =>
                 route.push(`/applicants?id=${item.id}`)

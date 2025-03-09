@@ -33,7 +33,11 @@
     "../fonts/WalletConnectionWrapper.tsx",
     "../fonts/WalletConnectionProvider.tsx",
     "../fonts/global.d.ts",
-    "src/app/tester/soroban/route.js"
+    "src/app/tester/soroban/route.js",
+    "src/helpers/StellarContractIntegration.jsx",
+    "src/components/WalletInteraction.jsx",
+    "src/components/WalletInteraction.jsx",
+    "src/components/WalletInteraction.jsx"
   ],
   "exclude": ["node_modules"]
 }
